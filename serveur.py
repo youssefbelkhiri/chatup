@@ -4,7 +4,7 @@ from socket import *
 from threading import *
 import sqlite3
 
-#=== Creation du base de données et des tables ===#
+#=== ccreation database and tables ===#
 conn = sqlite3.connect('database.db')
 cursor = conn.cursor()
 cursor.execute('create table IF NOT EXISTS client(username TEXT primary key , password TEXT , email TEXT , firstname TEXT,lastname TEXT , tele TEXT )')
@@ -25,11 +25,11 @@ user_clients=[]
 
 def gestion_msg(client, addr):
     while True:
-        #=================== Recevoir des données ===========================#
+        #=================== receive data ===========================#
         message=client.recv(1024).decode("utf-8")
         data=message.split(',')
 
-        #=== Pour les données de création du compte ===#
+        #=== for sign up ===#
         if data[0] == "user_data":
             if data[1]=="" or data[2]=="" or data[3]=="" or data[4]=="" or data[5]=="" or data[6]=="":
                 client.send("error".encode())    
@@ -44,7 +44,7 @@ def gestion_msg(client, addr):
                 usernames.append(user_reg)
                 user_clients.append((user_reg,client))
 
-        #=== Pour les données d'authentification ===#
+        #=== for sign in===#
         elif data[0]=="user_login":
             if data[1]=="" or data[2]=="":
                 client.send("error".encode())
@@ -63,7 +63,7 @@ def gestion_msg(client, addr):
                 conn.commit()
                 conn.close()
 
-        #=== Pour l'historique ===#
+        #=== for discussion historic ===#
         elif data[0] =="historique":
             conn=sqlite3.connect('database.db')
             cursor=conn.cursor()
@@ -73,13 +73,13 @@ def gestion_msg(client, addr):
                 result = json.dumps(results)
                 client.send(result.encode())
             else:
-                client.send("Aucun message trouvé !".encode()) 
+                client.send("No msgs found !".encode()) 
 
-        #=== Pour les messages ===#  
+        #=== for msgs ===#  
         else:
             msg=message.split(':')
 
-            #=== Pour la listes des utilisateurs connectés ===#    
+            #=== for online clients ===#    
             if len(msg)>1 and msg[1]=="online":
                 for i in usernames :
                     client.send(f'{i}\n'.encode()) 
@@ -93,7 +93,7 @@ def gestion_msg(client, addr):
                     if user[0] == to: 
                         user[1].send(f"{msg[0]}(prv):{msg_prv}\n".encode("utf-8"))   
 
-            #=== Pour la diffusion des messages aux utilisateurs ===#    
+            #=== for broadcast msgs to everyone ===#    
             else:
                 conn=sqlite3.connect('database.db')
                 cursor=conn.cursor()
@@ -111,34 +111,23 @@ def gestion_msg(client, addr):
     clients.remove(client)
 
 
-serveur = Tk()
-serveur.title("Instant Messaging : Registre") #Donner un titre
-serveur.geometry("500x500")        #Controler le largeur et la longuer       
-serveur.resizable(False,False)     #Refuser l'acces au changement des longuer du fenetre
-serveur.config(background="silver")#Changer la couleur du background  
-serveur.iconbitmap("img/icon.ico")
-server_text=Text(serveur,width=55)
-server_text.configure(state='disabled')
-server_text.configure(state='normal')
-server_text.insert(END,"Le serveur est en attend des connexions du client !")
-server_text.configure(state='disabled')
-server_text.place(x=10,y=10)
+
+
+print("the server is listening !")
 host = '127.0.0.1'
 port = 4444
 server = socket(AF_INET, SOCK_STREAM)
 server.bind((host, port))
 server.listen()
-serveur.mainloop()
+
 while True:
     client, addr = server.accept()
-    server_text.configure(state='normal')
-    server_text.inser(END,"\n"+"Connecte avec:"+addr)
-    server_text.configure(state='disabled')
-    print(f"Connecte avec {str(addr)}")
+
+    print(f"Connected with {str(addr)}")
     clients.append(client)
     thread = Thread(target=gestion_msg, args=(client, addr,))
     #thread.daemon = True
     thread.start()
 
    
-#========================================== FIN ==========================================#
+#========================================== THE END==========================================#

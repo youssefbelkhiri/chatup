@@ -10,31 +10,31 @@ port = 4444
 client = socket(AF_INET, SOCK_STREAM)
 client.connect((host, port))
 
-#========= Creation de la fentre registre =========#
+#========= creation sing up =========#
 def fen_registre():
-    #=== Envoyer au serveur les données entrées par le client lors de création du compte ==#
+    #=== send to the server the data ==#
     def user_data() :
-        nom=nom_entry.get()
-        prenom=prenom_entry.get()
+        lastname=nom_entry.get()
+        firstname=prenom_entry.get()
         email=email_entry.get()
         username=username_entry.get()
         password=password_entry.get()
         tele=tele_entry.get()
-        data = f"user_data,{username},{password},{email},{nom},{prenom},{tele}"
+        data = f"user_data,{username},{password},{email},{lastname},{firstname},{tele}"
         client.send(data.encode())
 
-    #=== Confirmation d'existence d'un champ vide ===#
+    #=== confirmation sing up ===#
     def conf_registre():
         info=client.recv(1024).decode()
         if  info=="error":
-            messagebox.showerror("error","Entrez vos données !")
+            messagebox.showerror("Error","Enter your data !")
         # elif info=="duplcate":
-        #     messagebox.showerror("error","username existe déja")    
+        #     messagebox.showerror("error","username existe")    
         else:
             username=username_entry.get()
             chat(username)  
 
-    #=== Fonction de la boutton Créer un compte ==#
+    #=== fonction for sending data to the server  ==#
     def send_data():
         user_data()
         conf_registre()
@@ -42,19 +42,18 @@ def fen_registre():
 
     fen_authentification.destroy()
     fen_registre = Tk()
-    fen_registre.title("Instant Messaging : Registre") #Donner un titre
-    fen_registre.geometry("500x500")        #Controler le largeur et la longuer       
-    fen_registre.resizable(False,False)     #Refuser l'acces au changement des longuer du fenetre
-    fen_registre.config(background="silver")#Changer la couleur du background  
-    fen_registre.iconbitmap("img/icon.ico") #Changer l'incone du fenetre
+    fen_registre.title("chatup : Registre") 
+    fen_registre.geometry("500x500")             
+    fen_registre.resizable(False,False)    
+    fen_registre.config(background="silver")
+    fen_registre.iconbitmap("img/icon.ico") 
 
     titre_registre = Label(fen_registre, text="Création d'un nouveau compte" , fg='black', bg='silver', font=('Cambria', 20))
-    titre_registre.place(x=90,y=10) #Insérer le texte
-
+    titre_registre.place(x=90,y=10) 
     nom_label = Label(fen_registre, text='Nom: ', fg='black', bg='silver', font=('Courier',15))
     nom_label.place(x=10, y=60)
     nom_entry = Entry(fen_registre, width=30)
-    nom_entry.place(x=180,y=64) #Insérer la zone de texte
+    nom_entry.place(x=180,y=64) 
 
     prenom_label = Label(fen_registre, text='Prénom: ', fg='black', bg='silver', font=('Courier',15))
     prenom_label.place(x=10, y=110)
@@ -98,18 +97,17 @@ def fen_registre():
     menubar1.add_cascade(label='Edit',menu=f3)
     f4 = Menu(menubar1)
     menubar1.add_cascade(label='Help',menu=f4)
-    fen_registre.config(menu=menubar1) #Ajouter des menubars
+    fen_registre.config(menu=menubar1) 
 
-    fen_registre.mainloop() #Executer la fenetre
+    fen_registre.mainloop() 
 
-
-#=== Creation de la fenetre de chat ===#
+#=== Creation chat room ===#
 def chat(user):
-    #== Demande d'hitorique des messages ==#
+    #== historic ==#
     def historique():
         client.send(f"historique,{user}".encode())
 
-    #== Envoie des messages ==#
+    #== send msgs ==#
     def Send_Msg():
         client_msg = ecrire_msg_entry.get()
         txtMessages.configure(state='normal')
@@ -119,7 +117,7 @@ def chat(user):
         client.send(msg.encode())
         ecrire_msg_entry.delete(0, "end")
 
-    #== Recevoir des donées du serveur ==#
+    #== recieve data from server ==#
     def Recv_Msg():
         while True:
             server_msg = client.recv(1024).decode("utf-8")
@@ -169,7 +167,7 @@ def chat(user):
 
     chat.mainloop()
 
-#== Envoyer au serveur les données entrées par le client lors d'authentification ==#
+#== send sign in data to the server ==#
 def login():
     user=username_entry.get()
     passw=password_entry.get()
